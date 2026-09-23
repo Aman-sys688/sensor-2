@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-BVS | Event-Based Vision Sensor</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js & OrbitControls & TWEEN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+</head>
+<body class="theme-dark">
+  <div class="app-container">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="brand-logo">
+          <span class="logo-symbol">E<span class="bar">¬</span>BVS</span>
+          <span class="logo-divider"></span>
+          <span class="logo-sub">EVENT-BASED VISION SENSOR</span>
+        </div>
+      </div>
+
+      <nav class="nav-center">
+        <button class="nav-tab active" data-stage="01" id="tab-overview">Overview</button>
+        <button class="nav-tab" data-stage="02" id="tab-optics">Optics</button>
+        <button class="nav-tab" data-stage="03" id="tab-pixel-array">Pixel Array</button>
+        <button class="nav-tab" data-stage="04" id="tab-events">Events</button>
+        <button class="nav-tab" data-stage="05" id="tab-timing">Timing</button>
+        <button class="nav-tab" data-stage="06" id="tab-simulation">Simulation</button>
+      </nav>
+
+      <div class="nav-right">
+        <div class="sensor-status-badge">
+          <span class="live-dot pulse"></span>
+          <span class="live-text">Live</span>
+          <span class="status-sep"></span>
+          <span class="sensor-name">Sensor Online</span>
+          <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO HEADER & TELEMETRY ROW -->
+    <section class="hero-section">
+      <div class="hero-left">
+        <div class="section-tag" id="stage-badge">01 — OVERVIEW</div>
+        <h1 class="main-title" id="stage-title">Event-Based Vision Sensor</h1>
+        <p class="main-description" id="stage-desc">
+          Unlike conventional cameras that capture full frames at fixed intervals (30–60 FPS),
+          an Event-Based Vision Sensor (EVS) mimics biological retinas — each pixel reacts
+          autonomously and asynchronously only when it detects a change in logarithmic illumination.
+        </p>
+      </div>
+
+      <div class="hero-right">
+        <div class="telemetry-bar">
+          <div class="stat-card">
+            <div class="stat-label">EVENT RATE</div>
+            <div class="stat-value" id="stat-rate">2.68 <span class="unit">MHz</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">LATENCY</div>
+            <div class="stat-value" id="stat-latency">8.2 <span class="unit">µs</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">DYNAMIC RANGE</div>
+            <div class="stat-value" id="stat-dr">120 <span class="unit">dB</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">PIXEL PITCH</div>
+            <div class="stat-value" id="stat-pitch">4.86 <span class="unit">µm</span></div>
+          </div>
+
+          <!-- ASYNCHRONOUS READOUT CARD -->
+          <div class="async-readout-card">
+            <div class="async-header">
+              <svg class="waveform-icon" width="28" height="20" viewBox="0 0 36 20" fill="none">
+                <path class="waveform-path" d="M1 10 H8 L11 3 L15 17 L19 6 L23 14 L26 10 H35" stroke="#b8ff00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="async-title">ASYNCHRONOUS<br>READOUT</span>
+            </div>
+            <div class="async-caption">No fixed frame rate.<br>Only changes matter.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN INTERACTIVE WORKSPACE (3 Columns: Left Stages, Center 3D & Tiers, Right Inspector) -->
+    <main class="workspace-grid">
+
+      <!-- LEFT SIDEBAR: STAGES & EXPLORE MODE -->
+      <aside class="left-stages-panel">
+        <div class="panel-header-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          STAGES
+        </div>
+
+        <div class="stages-list">
+          <button class="stage-item active" data-stage="01" id="stage-btn-01">
+            <span class="stage-num">01</span>
+            <div class="stage-info">
+              <span class="stage-name">Overview</span>
+              <span class="stage-sub">System introduction</span>
+            </div>
+          </button>
+
+          <button class="stage-item" data-stage="02" id="stage-btn-02">
+            <span class="stage-num">02</span>
+            <div class="stage-info">
+              <span class="stage-name">Optics</span>
+              <span class="stage-sub">Lens & light path</span>
+            </div>
+          </button>
+
+          <button class="stage-item" data-stage="03" id="stage-btn-03">
+            <span class="stage-num">03</span>
+            <div class="stage-info">
+              <span class="stage-name">Pixel Array</span>
+              <span class="stage-sub">Silicon sensor layer</span>
+            </div>
+          </button>
+
+          <button class="stage-item" data-stage="04" id="stage-btn-04">
+            <span class="stage-num">04</span>
+            <div class="stage-info">
+              <span class="stage-name">Events</span>
+              <span class="stage-sub">Asynchronous capture</span>
+            </div>
+          </button>
+
+          <button class="stage-item" data-stage="05" id="stage-btn-05">
+            <span class="stage-num">05</span>
+            <div class="stage-info">
+              <span class="stage-name">Timing</span>
+              <span class="stage-sub">Logarithmic response</span>
+            </div>
+          </button>
+
+          <button class="stage-item" data-stage="06" id="stage-btn-06">
+            <span class="stage-num">06</span>
+            <div class="stage-info">
+              <span class="stage-name">Simulation</span>
+              <span class="stage-sub">Interactive demo</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="explore-mode-section">
+          <div class="panel-header-label">EXPLORE MODE</div>
+          <div class="explore-toggle-group">
+            <button class="explore-btn active" id="btn-3d-view">
+              <span class="active-indicator-dot"></span>
+              3D View
+            </button>
+            <button class="explore-btn" id="btn-section-view">
+              Section View
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CENTER HERO STAGE: 3D VIEWPORT & TIER CARDS -->
+      <section class="center-stage">
+        
+        <!-- 3D VIEWPORT CONTAINER -->
+        <div class="viewport-card" id="viewport-card">
+          <!-- Viewport Top Toolbar -->
+          <div class="viewport-header">
+            <div class="optical-path-tag">
+              <span class="crosshair-icon">⊕</span>
+              <span class="tag-text">OPTICAL PATH / SECTION A-A</span>
+            </div>
+
+            <div class="view-preset-toggles">
+              <button class="preset-btn active" id="preset-exploded">
+                <span class="preset-dot"></span> Exploded View
+              </button>
+              <button class="preset-btn" id="preset-lens">
+                Lens View
+              </button>
+              <button class="preset-btn" id="preset-sensor">
+                Sensor View
+              </button>
+            </div>
+          </div>
+
+          <!-- WebGL Three.js Canvas Container -->
+          <div class="webgl-canvas-wrapper" id="webgl-container">
+            <!-- Dynamic Floating 3D Component Labels -->
+            <div class="component-labels-overlay">
+              <div class="viewport-label" id="label-lens-group">
+                <span class="label-title">LENS GROUP</span>
+                <span class="label-sub">(Multi-element)</span>
+              </div>
+              <div class="viewport-label" id="label-ir-cut">
+                <span class="label-title">IR-CUT FILTER</span>
+                <span class="label-sub">(850nm)</span>
+              </div>
+              <div class="viewport-label" id="label-pixel-array">
+                <span class="label-title">PIXEL ARRAY</span>
+                <span class="label-sub">(Silicon Wafer)</span>
+              </div>
+            </div>
+
+            <!-- 3D Axes / Gimbal Indicator Overlay -->
+            <div class="axes-indicator" id="axes-indicator">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <line x1="26" y1="26" x2="46" y2="26" stroke="#ff4757" stroke-width="1.8" stroke-linecap="round"/>
+                <text x="47" y="29" fill="#ff4757" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="bold">X</text>
+                
+                <line x1="26" y1="26" x2="26" y2="6" stroke="#2ed573" stroke-width="1.8" stroke-linecap="round"/>
+                <text x="24" y="5" fill="#2ed573" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="bold">Y</text>
+                
+                <line x1="26" y1="26" x2="12" y2="40" stroke="#1e90ff" stroke-width="1.8" stroke-linecap="round"/>
+                <text x="5" y="47" fill="#1e90ff" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="bold">Z</text>
+              </svg>
+            </div>
+
+            <!-- Viewport Bottom Hint -->
+            <div class="viewport-bottom-hint">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 8v8M8 12h8"></path>
+              </svg>
+              <span>Drag to rotate</span>
+              <span class="hint-divider">|</span>
+              <span>Scroll to zoom</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIER NAVIGATION CARDS ROW -->
+        <div class="tiers-ribbon">
+          <!-- TIER 01 -->
+          <div class="tier-card" data-tier="1" id="tier-1">
+            <div class="tier-header">
+              <span class="tier-num">TIER 01</span>
+              <span class="tier-arrow">→</span>
+            </div>
+            <div class="tier-name">Optical Lens Group</div>
+            <div class="tier-desc">Focuses photons onto sensor plane with red and anti-reflective coating.</div>
+          </div>
+
+          <!-- TIER 02 -->
+          <div class="tier-card" data-tier="2" id="tier-2">
+            <div class="tier-header">
+              <span class="tier-num">TIER 02</span>
+              <span class="tier-arrow">→</span>
+            </div>
+            <div class="tier-name">IR-Cut Spectral Filter</div>
+            <div class="tier-desc">Blocks infrared light, passes visible spectrum (λ ≈ 400–700nm).</div>
+          </div>
+
+          <!-- TIER 03 -->
+          <div class="tier-card" data-tier="3" id="tier-3">
+            <div class="tier-header">
+              <span class="tier-num">TIER 03</span>
+              <span class="tier-arrow">→</span>
+            </div>
+            <div class="tier-name">Microlens Array</div>
+            <div class="tier-desc">Improves light collection efficiency and reduces crosstalk.</div>
+          </div>
+
+          <!-- TIER 04 -->
+          <div class="tier-card active" data-tier="4" id="tier-4">
+            <div class="tier-header">
+              <span class="tier-num">TIER 04</span>
+              <span class="tier-arrow">→</span>
+            </div>
+            <div class="tier-name">Silicon Pixel Wafer</div>
+            <div class="tier-desc">Converts light to events using logarithmic response.</div>
+          </div>
+
+          <!-- TIER 05 -->
+          <div class="tier-card" data-tier="5" id="tier-5">
+            <div class="tier-header">
+              <span class="tier-num">TIER 05</span>
+              <span class="tier-arrow">→</span>
+            </div>
+            <div class="tier-name">AER Logic & Arbiter</div>
+            <div class="tier-desc">Handles event processing and asynchronous readout.</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT SIDEBAR: LAYER DETAILS & TECHNICAL SPECS -->
+      <aside class="right-inspector-panel">
+        
+        <!-- Layer Details Section -->
+        <div class="inspector-section">
+          <div class="inspector-header-row">
+            <span class="section-title">Layer Details</span>
+            <span class="tier-tag-pill" id="layer-tier-tag">TIER 04</span>
+          </div>
+
+          <h3 class="layer-heading" id="layer-heading-title">Silicon Pixel Wafer</h3>
+
+          <ul class="layer-features-list" id="layer-features-list">
+            <li>Photodiode array</li>
+            <li>Logarithmic response</li>
+            <li>Asynchronous readout</li>
+          </ul>
+
+          <div class="layer-metric-block">
+            <div class="metric-sub">PIXEL PITCH</div>
+            <div class="metric-main" id="layer-metric-val">4.86 <span class="unit">µm</span></div>
+          </div>
+
+          <button class="inspect-layer-btn" id="inspect-layer-btn">
+            <span class="btn-arrow">→</span>
+            <span class="btn-text">Inspect Layer</span>
+          </button>
+        </div>
+
+        <div class="inspector-divider"></div>
+
+        <!-- Technical Specs Section -->
+        <div class="inspector-section">
+          <span class="section-title">Technical Specs</span>
+
+          <div class="specs-table">
+            <div class="spec-row">
+              <span class="spec-label">Resolution</span>
+              <span class="spec-value" id="spec-resolution">640 × 480</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Bit Depth</span>
+              <span class="spec-value" id="spec-bit-depth">12-bit</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Max Event Rate</span>
+              <span class="spec-value" id="spec-max-rate">2.68 MHz</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Power (typ.)</span>
+              <span class="spec-value" id="spec-power">210 mW</span>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- BOTTOM ROW: REAL-TIME EVENT STREAM, HOW IT WORKS & QUOTE -->
+    <footer class="bottom-stream-row">
+
+      <!-- Real-time Event Stream Spectrogram Panel -->
+      <div class="event-stream-container">
+        <div class="stream-header">
+          <div class="stream-title-group">
+            <span class="stream-name">Event Stream</span>
+            <span class="stream-live-indicator">
+              <span class="pulse-dot"></span>
+              Real-time
+            </span>
+          </div>
+
+          <div class="stream-telemetry-cluster">
+            <div class="stream-stat">
+              <span class="stat-meta">Events (last 50ms)</span>
+              <span class="stat-number glow-text" id="stream-events-count">1,324,681</span>
+            </div>
+            <div class="stream-stat">
+              <span class="stat-meta">Avg. Rate</span>
+              <span class="stat-number" id="stream-avg-rate">2.68 MHz</span>
+            </div>
+            <div class="stream-stat">
+              <span class="stat-meta">Frame Equivalent</span>
+              <span class="stat-number dim">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="spectrogram-viewport">
+          <!-- Gradient Intensity Meter on Left -->
+          <div class="intensity-bar">
+            <div class="intensity-gradient"></div>
+          </div>
+
+          <!-- The Real-time Event Raster Canvas -->
+          <div class="canvas-wrapper">
+            <canvas id="eventStreamCanvas"></canvas>
+            
+            <!-- Time axis markers (0ms, 10ms, 20ms, 30ms, 40ms, 50ms) -->
+            <div class="time-axis">
+              <span>0ms</span>
+              <span>10ms</span>
+              <span>20ms</span>
+              <span>30ms</span>
+              <span>40ms</span>
+              <span>50ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works Panel -->
+      <div class="how-it-works-panel">
+        <div class="how-header">
+          <svg class="gear-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span class="how-title">How It Works</span>
+        </div>
+
+        <ol class="how-steps-list">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Light change hits a pixel</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Pixel generates an event (x, y, t, p)</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Events are processed asynchronously</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Output sent to downstream system</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Philosophy / Quote Card -->
+      <div class="philosophy-card">
+        <svg class="waveform-small" width="40" height="16" viewBox="0 0 40 16" fill="none">
+          <path d="M1 8 C 8 2, 14 14, 20 8 C 26 2, 32 14, 39 8" stroke="#4a5568" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <blockquote class="quote-text">
+          “Less data.<br>More information.”
+        </blockquote>
+        <div class="quote-author">Event-Based Vision</div>
+      </div>
+
+    </footer>
+
+    <!-- INTERACTIVE LAYER INSPECTION MODAL -->
+    <div class="inspect-modal-overlay" id="inspect-modal">
+      <div class="inspect-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-tier-badge" id="modal-tier-badge">TIER 04</span>
+            <h2 class="modal-title" id="modal-title">Silicon Pixel Wafer — Deep Inspection</h2>
+          </div>
+          <button class="modal-close-btn" id="modal-close-btn">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body">
+          <!-- Dynamic details injected here -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="camera-3d.js"></script>
+  <script src="event-stream.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
